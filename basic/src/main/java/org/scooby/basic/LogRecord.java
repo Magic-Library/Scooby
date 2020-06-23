@@ -2,9 +2,13 @@ package org.scooby.basic;
 
 import static org.projector.utils.Nullable.checkNotNull;
 
+import java.util.Date;
+
 public class LogRecord {
-    private Integer processId;
+    private String processId;
     private LogLevel level;
+    private Date timestamp;
+    private String tag;
     private String message;
     private Object data;
     private Throwable error;
@@ -12,12 +16,20 @@ public class LogRecord {
     
     private LogRecord() {}
 
-    public int getProcessId() {
+    public String getProcessId() {
         return processId;
     }
 
     public LogLevel getLevel() {
         return level;
+    }
+    
+    public Date getTimestamp() {
+        return timestamp;
+    }
+    
+    public String getTag() {
+        return tag;
     }
 
     public String getMessage() {
@@ -40,14 +52,14 @@ public class LogRecord {
         return processId != null && level != null && (message != null || data != null || error != null) && stackTrace != null && stackTrace.length > 0;
     }
     
-    public class Builder {
+    public static class Builder {
         private LogRecord record;
         
         public Builder() {
             record = new LogRecord();
         }
         
-        public Builder setProcessId(int processId) {
+        public Builder setProcessId(String processId) {
             record.processId = processId;
             return this;
         }
@@ -55,6 +67,18 @@ public class LogRecord {
         public Builder setLevel(LogLevel level) {
             checkNotNull(level, "Log level", null);
             record.level = level;
+            return this;
+        }
+        
+        public Builder setTimestamp(Date timestamp) {
+            checkNotNull(timestamp, "Timestamp", null);
+            record.timestamp = timestamp;
+            return this;
+        }
+        
+        public Builder setTag(String tag) {
+            checkNotNull(tag, "Tag", null);
+            record.tag = tag;
             return this;
         }
 
@@ -74,7 +98,7 @@ public class LogRecord {
         }
 
         public Builder setStackTrace(StackTraceElement[] stackTrace) {
-            checkNotNull(level, "Stack trace elements", null);
+            checkNotNull(stackTrace, "Stack trace elements", null);
             if (stackTrace.length == 0) {
                 throw new IllegalArgumentException("Stack trace must have at least one item");
             }

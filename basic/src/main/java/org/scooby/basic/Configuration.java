@@ -1,8 +1,6 @@
 package org.scooby.basic;
 
-import java.util.Set;
-
-public interface Configuration<Level extends LogLevel> {
-    public Set<Level> levels();
-    public boolean enabled(Level level);
+public interface Configuration {
+    public boolean isEnabled(LogLevel level);
+    public String formatRecord(LogRecord record);
 }
