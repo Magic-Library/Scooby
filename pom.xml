@@ -26,7 +26,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <projector.utils.version>0.0.1</projector.utils.version>
+        <projector.utils.version>0.0.2</projector.utils.version>
     </properties>
     <build>
         <plugins>
