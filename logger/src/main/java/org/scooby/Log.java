@@ -33,102 +33,118 @@ public class Log {
     }
     
     public void debug(String message) {
-        debug(message, null);
+        write(LogLevel.DEBUG, null, message, null, null, stackTrace());
     }
     
     public void debug(String message, Object data) {
-        debug(message, data, null);
+        write(LogLevel.DEBUG, null, message, data, null, stackTrace());
     }
     
     public void debug(String message, Object data, Throwable error) {
-        debug(null, message, data, error);
+        write(LogLevel.DEBUG, null, message, data, error, stackTrace());
     }
     
     public void debug(String tag, String message, Object data) {
-        debug(tag, message, data, null);
+        write(LogLevel.DEBUG, tag, message, data, null, stackTrace());
     }
     
     public void debug(String tag, String message, Object data, Throwable error) {
-        write(LogLevel.DEBUG, tag, message, data, error);
+        write(LogLevel.DEBUG, tag, message, data, error, stackTrace());
     }
     
     public void info(String message) {
-        info(message, null);
+        write(LogLevel.INFO, null, message, null, null, stackTrace());
     }
     
     public void info(String message, Object data) {
-        info(message, data, null);
+        write(LogLevel.INFO, null, message, data, null, stackTrace());
     }
     
     public void info(String message, Object data, Throwable error) {
-        info(null, message, data, error);
+        write(LogLevel.INFO, null, message, data, error, stackTrace());
     }
     
     public void info(String tag, String message, Object data) {
-        info(tag, message, data, null);
+        write(LogLevel.INFO, tag, message, data, null, stackTrace());
     }
     
     public void info(String tag, String message, Object data, Throwable error) {
-        write(LogLevel.INFO, tag, message, data, error);
+        write(LogLevel.INFO, tag, message, data, error, stackTrace());
     }
     
     public void warn(String message) {
-        warn(message, null);
+        write(LogLevel.WARN, null, message, null, null, stackTrace());
     }
     
     public void warn(String message, Object data) {
-        warn(message, data, null);
+        write(LogLevel.WARN, null, message, data, null, stackTrace());
     }
     
     public void warn(String message, Object data, Throwable error) {
-        warn(null, message, data, error);
+        write(LogLevel.WARN, null, message, data, error, stackTrace());
     }
     
     public void warn(String tag, String message, Object data) {
-        warn(tag, message, data, null);
+        write(LogLevel.WARN, tag, message, data, null, stackTrace());
     }
     
     public void warn(String tag, String message, Object data, Throwable error) {
-        write(LogLevel.WARN, tag, message, data, error);
+        write(LogLevel.INFO, tag, message, data, error, stackTrace());
     }
     
     public void error(String message, Object data) {
-        error(message, data, null);
+        write(LogLevel.ERROR, null, message, data, null, stackTrace());
     }
     
     public void error(String message, Object data, Throwable error) {
-        error(null, message, data, error);
+        write(LogLevel.ERROR, null, message, data, error, stackTrace());
     }
     
     public void error(String tag, String message, Object data) {
-        error(tag, message, data, null);
+        write(LogLevel.ERROR, tag, message, data, null, stackTrace());
     }
     
     public void error(String tag, String message, Object data, Throwable error) {
-        write(LogLevel.ERROR, tag, message, data, error);
+        write(LogLevel.ERROR, tag, message, data, error, stackTrace());
     }
     
     public void fatal(String message, Object data) {
-        fatal(message, data, null);
+        write(LogLevel.FATAL, null, message, data, null, stackTrace());
     }
     
     public void fatal(String message, Object data, Throwable error) {
-        fatal(null, message, data, error);
+        write(LogLevel.FATAL, null, message, data, error, stackTrace());
     }
     
     public void fatal(String tag, String message, Object data) {
-        fatal(tag, message, data, null);
+        write(LogLevel.FATAL, tag, message, data, null, stackTrace());
     }
     
     public void fatal(String tag, String message, Object data, Throwable error) {
-        write(LogLevel.FATAL, tag, message, data, error);
+        write(LogLevel.FATAL, tag, message, data, error, stackTrace());
     }
     
-    private void write(LogLevel level, String tag, String message, Object data, Throwable error) {
+    private StackTraceElement[] stackTrace() {
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        if (stackTrace == null || stackTrace.length < 2) {
+            return new StackTraceElement[0];
+        }
+        
+        StackTraceElement[] result = new StackTraceElement[stackTrace.length - 1];
+        System.arraycopy(stackTrace, 0, result, 0, stackTrace.length - 1);
+        return result;
+    }
+    
+    private String pid() {
+        RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
+        String jvmName = bean.getName();
+        return jvmName.split("@")[0];
+    }
+    
+    private void write(LogLevel level, String tag, String message, Object data, Throwable error, StackTraceElement[] stackTrace) {
         if (tag == null) {
-            StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-            if (stackTrace != null && stackTrace.length > 0) {
-                tag = stackTrace[stackTrace.length - 1].getClassName();
+            if (stackTrace != null && stackTrace.length > 1) {
+                tag = stackTrace[stackTrace.length - 2].getClassName();
             }
         } 
         
@@ -140,13 +156,8 @@ public class Log {
             .setData(data)
             .setError(error)
             .setProcessId(pid())
+            .setStackTrace(stackTrace)
             .build();
         writer.write(record);
-    }
-    
-    private String pid() {
-        RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
-        String jvmName = bean.getName();
-        return jvmName.split("@")[0];
     }
 }
