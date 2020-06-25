@@ -9,6 +9,7 @@ import java.util.Map;
 import org.scooby.basic.LogLevel;
 import org.scooby.basic.LogRecord;
 import org.scooby.basic.LogWriter;
+import static org.projector.utils.Nullable.ifNullOrNot;
 
 public class Log {    
     @SuppressWarnings("rawtypes")
@@ -19,7 +20,9 @@ public class Log {
     }
 
     static Log forClass(Class<?> clazz) {
-        return instances.get(clazz);
+        return ifNullOrNot(instances.get(clazz), () -> {
+            return new Log(clazz);
+        }, l -> l);
     }
     
     private LogWriter writer;
@@ -89,7 +92,11 @@ public class Log {
     }
     
     public void warn(String tag, String message, Object data, Throwable error) {
-        write(LogLevel.INFO, tag, message, data, error, stackTrace());
+        write(LogLevel.WARN, tag, message, data, error, stackTrace());
+    }
+    
+    public void error(String message) {
+        write(LogLevel.ERROR, null, message, null, null, stackTrace());
     }
     
     public void error(String message, Object data) {
@@ -106,6 +113,10 @@ public class Log {
     
     public void error(String tag, String message, Object data, Throwable error) {
         write(LogLevel.ERROR, tag, message, data, error, stackTrace());
+    }
+    
+    public void fatal(String message) {
+        write(LogLevel.FATAL, null, message, null, null, stackTrace());
     }
     
     public void fatal(String message, Object data) {
